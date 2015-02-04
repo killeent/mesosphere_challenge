@@ -2,6 +2,8 @@
 
 Challenge Performed from 1pm-5pm PST, on 2/4/15. 
 
+### Build Information
+
 ### Top-level Interface
 
 First we define the goals of the system as related to the four interface
@@ -102,3 +104,96 @@ total floors moved). However, as with the above concern, this would greatly
 increase the complexity of our system.
 
 ### Class Design
+
+The main class we design is the ElevatorControlSystem class, which implements
+the interface we designed above, and contains the state of our world.
+
+state:
+
+* lock guarding the state of the system
+* an array of lists of Requests, one for each floor of the building
+* an array of Elevators
+
+public functions:
+
+* the four API functions described above
+* a constructor, which takes in a user-specified floor count and elevator
+count
+* getIDs(): returns the set of elevator IDs
+
+discussion:
+
+The API is discussed above, and the constructor is fairly self-explanatory.
+Instead, let's consider the class design. 
+
+First, we have an array of lists of requests -> i.e. arr[0] contains the 
+list of requests for the 0th floor. When an elevator arrives at a floor, it 
+will check and  see if there are people waiitng. It will pick up all those
+whose requests are in the direction that elevator is traveling.
+
+We also have an array of elevators. This provides the ElevatorControlSystem
+access to each elevator in the system and allows it to query them for
+information. 
+
+The next class we consider is the Request class. 
+
+state:
+
+* desired floor
+
+public functions:
+
+* a constructor, which takes in the specified desired floor
+* getDesiredFloor(): returns the floor desired by this request
+
+discussion:
+
+The request class is fairly simple, but is designed for modularity and 
+extensibility. We can think of the request as a person so we could imagine
+adding various extensions (e.g. if the person as a fireman, perhaps they
+have a key that allows them exclusive access to the elevator, and their
+request could embody this greater priority). 
+
+The last class we consider is the Elevator class.
+
+state: 
+
+* current floor
+* min, max floor
+* destination floor
+* a list of passengers (Requests)
+
+public functions:
+
+* a constructor, which takes in a specified initial floor and min, max floors
+* a step() function, to be called whenever a global step occurs. This simply
+moves the elevator one floor. 
+* a releasePassengers() function, which lets passengers out of the elevator
+that are at their requested floor
+* a serviceRequests() function, which lets passengers into the elevator
+
+discussion:
+
+The challenge with the Elevator is that it is inherently coupled to the 
+ElevatorControlSystem, so we want to design it in a way so that the 
+dependencies are one sided. Thus we made our Elevator simply keep track of 
+who it holds andwhere it is headed, and made the ECS responsible for calling
+the step, releasePassengers and serviceRequests functions at the appropriate
+times. 
+
+Additionally, we like to add the ability to specify the min and max
+floors. Not only is this necessary to implement our SCAN algorithm, it allows
+us to create elevators that only service certain ranges of the building. For
+example, many buildings have elevators that only service a certain range of
+floors. 
+
+class organization:
+
+For now, we chose to implement Request and Elevator as inner classes within
+the ElevatorControlSystem because they are fairly specific to the ECS 
+implementation. One could imagine eventually moving these classes out (and/or)
+defining interfaces for them, but for now we will not.
+
+### Implementation Notes
+
+### Final Thoughts
