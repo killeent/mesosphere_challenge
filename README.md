@@ -12,13 +12,17 @@ functions that we need to provide.
 List((int, int, int)) status(): returns a list of results of calling update() on
 each elevator.
 
-(int, int) update(int): returns the current floor and goal floor  of the
-elevator specified by the passed elevator ID.
-
-Both of these functions are unchanged. In general, because they are merely
-returning the state of the world, they do not inform development, other than
+This function is unchanged. In general, because it is merely returning the state 
+of the world, this function do not inform development, other than
 requiring us to provide an interface for getting information about the state of
 the world.
+
+update(int, int): sets the destination floor of the elevator specified by the
+first parameter (ID) to the floor specified by the second parameter.
+
+This is used by the elevator system to move elevators without requests. We
+remove the ability to change the current floor as this will be handled by 
+step.
 
 void pickup(int, int): requests a pickup at the floor specified by the first
 parameter, to travel to the floor at the second parameter
@@ -52,10 +56,15 @@ to step().
 pickup requests. 
 
 As a result, we decided to have a single lock guarding the state of our world.
-During a call to pickup() we:
 
+During a call to pickup() we:
 1. acquire the global lock
 2. make our request
+3. release the lock
+
+During a call to update() we:
+1. acquire the global lock
+2. update the destination floor of the specified elevator
 3. release the lock
 
 During a call to step() we:
@@ -63,7 +72,7 @@ During a call to step() we:
 2. iterate through all elevators, performing their actions one by one
 3. release the lock
 
-Though in the real world we could pickups and the movement of elevators
+Though in the real world pickups, updates and the movement of elevators
 are continuous and occur in parallel, given the limited timespan necessary
 to implement this project, we chose to have this simple implementation. 
 
@@ -102,6 +111,12 @@ a request at a cost of efficiency.
 at low request rates to improve efficiency (as measured by people serviced /
 total floors moved). However, as with the above concern, this would greatly
 increase the complexity of our system.
+
+3. Elevators are always moving if there is someone waiting for a request. This
+is terribly inefficient, and definitely should be improved upon, but was done
+so for efficiency reasons. I thought about implementing some sort of global 
+request queue to dispatch elevators to, but in order to implement this within
+a reasonable amount of time, I decided that the added complexity was too great. 
 
 ### Class Design
 
@@ -167,10 +182,12 @@ public functions:
 
 * a constructor, which takes in a specified initial floor and min, max floors
 * a step() function, to be called whenever a global step occurs. This simply
-moves the elevator one floor. 
+moves the elevator one floor towards the desired floor. 
 * a releasePassengers() function, which lets passengers out of the elevator
 that are at their requested floor
 * a serviceRequests() function, which lets passengers into the elevator
+* a setDesiedFloor() function, which allows the ECS to ovverride the destination
+floor. 
 
 discussion:
 
@@ -186,6 +203,9 @@ floors. Not only is this necessary to implement our SCAN algorithm, it allows
 us to create elevators that only service certain ranges of the building. For
 example, many buildings have elevators that only service a certain range of
 floors. 
+
+The setDesiedFloor function is necessary for the ECS system to a move an elevator,
+without a request, and to decouple the SCAN functionality as best we can. 
 
 class organization:
 
