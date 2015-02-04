@@ -20,8 +20,18 @@ public interface ElevatorControlService {
      *
      * @param elevatorID The elevator to update.
      * @param destinationFloor destination floor.
+     * @throws java.lang.IllegalArgumentException if elevatorID, destinationFloor
+     * is invalid.
      */
     public void update(int elevatorID, int destinationFloor);
+
+    /**
+     * Get the range of acceptable floors for the specified elevator.
+     *
+     * @throws java.lang.IllegalArgumentException if elevatorID is invalid.
+     * @return The (min floor, max floor) for the specified elevator.
+     */
+    public Pair<Integer> floorRange(int elevatorID);
 
     /**
      * @return A set of elevator IDs for all elevators in the system.
@@ -33,6 +43,8 @@ public interface ElevatorControlService {
      *
      * @param pickupFloor Floor to be picked up on.
      * @param destinationFloor Floor desired.
+     * @throws java.lang.IllegalArgumentException if pickup, destination
+     * is invalid.
      */
     public void pickup(int pickupFloor, int destinationFloor);
 

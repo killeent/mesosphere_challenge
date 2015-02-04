@@ -9,8 +9,8 @@ Challenge Performed from 1pm-5pm PST, on 2/4/15.
 First we define the goals of the system as related to the four interface
 functions that we need to provide.
 
-List((int, int, int)) status(): returns a list of results of calling update() on
-each elevator.
+List((int, int, int)) status(): returns a list of results of the status
+of each elevator in the form (id, curr floor, dest floor).
 
 This function is unchanged. In general, because it is merely returning the state 
 of the world, this function do not inform development, other than
@@ -137,6 +137,11 @@ public functions:
 * a constructor, which takes in a user-specified floor count and elevator
 count
 * getIDs(): returns the set of elevator IDs
+* floorRange(int elevatorID): returns the range of floors for an elevator
+
+private functions:
+
+* isValidElevatorID(int elevatorID): check the validity of an elevatorID
 
 discussion:
 
@@ -206,7 +211,7 @@ us to create elevators that only service certain ranges of the building. For
 example, many buildings have elevators that only service a certain range of
 floors. 
 
-The setDesiedFloor function is necessary for the ECS system to a move an elevator,
+The setDesiredFloor function is necessary for the ECS system to a move an elevator,
 without a request, and to decouple the SCAN functionality as best we can. It will
 allow us to set up a different scheduling algorithm without having to modify
 the internal state of the Elevator.
@@ -219,5 +224,9 @@ implementation. One could imagine eventually moving these classes out (and/or)
 defining interfaces for them, but for now we will not.
 
 ### Implementation Notes
+
+* added interface for an ElevatorControlSystem
+* added floor range so that the client can interact with update appropriately
+* add is valid elevator id function
 
 ### Final Thoughts

@@ -1,7 +1,4 @@
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A simple implementation of an ECS. See README.md for a discussion of this
@@ -11,28 +8,88 @@ import java.util.Set;
  */
 public class SimpleElevatorControlService implements ElevatorControlService {
 
-    public SimpleElevatorControlService() {
+    private final List<Elevator> elevators;
+    private final List<List<Request>> requests;
 
+    /**
+     * Constructs a new ElevatorControlService.
+     *
+     * @param floorCount Number of floors.
+     * @param elevatorCount Number of elevators.
+     * @throws java.lang.IllegalArgumentException if floorCount < 1 or
+     * elevatorCount < 1.
+     */
+    public SimpleElevatorControlService(int floorCount, int elevatorCount) {
+        if (floorCount < 1 || elevatorCount < 1) {
+            throw new IllegalArgumentException("must be at least 1 floor/elevator");
+        }
+        elevators = new ArrayList<Elevator>(elevatorCount);
+        for (int i = 0; i < elevatorCount; i++) {
+            // initialize all elevators at the bottom floor
+            elevators.add(new Elevator(0, floorCount - 1, 0, 0));
+        }
+        requests = new ArrayList<List<Request>>(floorCount);
+        for (int i = 0; i < elevatorCount; i++) {
+            requests.add(new LinkedList<Request>());
+        }
     }
 
     @Override
     public synchronized List<Triple<Integer>> status() {
-        return null;
+        List<Triple<Integer>> result = new ArrayList<Triple<Integer>>(elevators.size());
+        for(int i = 0; i < elevators.size(); i++) {
+            Elevator temp = elevators.get(i);
+            result.add(new Triple<Integer>(i, temp.currentFloor, temp.destinationFloor));
+        }
+        return result;
     }
 
     @Override
     public synchronized void update(int elevatorID, int destinationFloor) {
+        if (!isValidElevatorID(elevatorID)) {
+            throw new IllegalArgumentException("invalid elevator");
+        }
+        if (destinationFloor < 0 || destinationFloor >= requests.size()) {
+            throw new IllegalArgumentException("floor out of bounds");
+        }
+        try {
+            elevators.get(elevatorID).setDestinationFloor(destinationFloor);
+        } catch (IllegalArgumentException e) {
+            // could probably handle this exception better
+            throw new IllegalArgumentException("invalid floor: " + e.getMessage());
+        }
+    }
 
+    // determines if this is a valid elevatorID or not
+    private boolean isValidElevatorID(int elevatorID) {
+        return elevatorID >= 0 && elevatorID < elevators.size();
+    }
+
+    @Override
+    public Pair<Integer> floorRange(int elevatorID) {
+        if (!isValidElevatorID(elevatorID)) {
+            throw new IllegalArgumentException("invalid elevator");
+        }
+        Elevator temp = elevators.get(elevatorID);
+        return new Pair<Integer>(temp.getMinFloor(), temp.getMaxFloor());
     }
 
     @Override
     public synchronized Set<Integer> idSet() {
-        return null;
+        Set<Integer> result = new HashSet<Integer>();
+        for (int i = 0; i < elevators.size(); i++) {
+            result.add(i);
+        }
+        return result;
     }
 
     @Override
     public synchronized void pickup(int pickupFloor, int destinationFloor) {
-
+        if (pickupFloor < 0 || pickupFloor >= requests.size() ||
+                destinationFloor < 0 || destinationFloor >= requests.size()) {
+            throw new IllegalArgumentException("invalid floors");
+        }
+        requests.get(pickupFloor).add(new Request(destinationFloor));
     }
 
     @Override
