@@ -72,6 +72,8 @@ During a call to step() we:
 2. iterate through all elevators, performing their actions one by one
 3. release the lock
 
+(we also acquire the lock to query the world)
+
 Though in the real world pickups, updates and the movement of elevators
 are continuous and occur in parallel, given the limited timespan necessary
 to implement this project, we chose to have this simple implementation. 
@@ -125,7 +127,7 @@ the interface we designed above, and contains the state of our world.
 
 state:
 
-* lock guarding the state of the system
+* lock guarding the state of the  (implicity this)
 * an array of lists of Requests, one for each floor of the building
 * an array of Elevators
 
@@ -186,7 +188,7 @@ moves the elevator one floor towards the desired floor.
 * a releasePassengers() function, which lets passengers out of the elevator
 that are at their requested floor
 * a serviceRequests() function, which lets passengers into the elevator
-* a setDesiedFloor() function, which allows the ECS to ovverride the destination
+* a setDestinationFloor() function, which allows the ECS to ovverride the destination
 floor. 
 
 discussion:
@@ -205,7 +207,9 @@ example, many buildings have elevators that only service a certain range of
 floors. 
 
 The setDesiedFloor function is necessary for the ECS system to a move an elevator,
-without a request, and to decouple the SCAN functionality as best we can. 
+without a request, and to decouple the SCAN functionality as best we can. It will
+allow us to set up a different scheduling algorithm without having to modify
+the internal state of the Elevator.
 
 class organization:
 
