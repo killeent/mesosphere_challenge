@@ -180,6 +180,7 @@ The last class we consider is the Elevator class.
 
 state: 
 
+* id
 * current floor
 * min, max floor
 * destination floor
@@ -192,7 +193,7 @@ public functions:
 moves the elevator one floor towards the desired floor. 
 * a releasePassengers() function, which lets passengers out of the elevator
 that are at their requested floor
-* a serviceRequests() function, which lets passengers into the elevator
+* serviceRequest(s)() functions, which lets passengers into the elevator
 * a setDestinationFloor() function, which allows the ECS to ovverride the destination
 floor. 
 

@@ -11,22 +11,27 @@ public class SimpleElevatorControlService implements ElevatorControlService {
     private final List<Elevator> elevators;
     private final List<List<Request>> requests;
 
+    public static final int MAX_ELEVATORS = 16;
+
     /**
      * Constructs a new ElevatorControlService.
      *
      * @param floorCount Number of floors.
      * @param elevatorCount Number of elevators.
      * @throws java.lang.IllegalArgumentException if floorCount < 1 or
-     * elevatorCount < 1.
+     * elevatorCount < 1, or elevatorCount > MAX_ELEVATORS.
      */
     public SimpleElevatorControlService(int floorCount, int elevatorCount) {
         if (floorCount < 1 || elevatorCount < 1) {
             throw new IllegalArgumentException("must be at least 1 floor/elevator");
         }
+        if (elevatorCount > MAX_ELEVATORS) {
+            throw new IllegalArgumentException("too many elevators");
+        }
         elevators = new ArrayList<Elevator>(elevatorCount);
         for (int i = 0; i < elevatorCount; i++) {
             // initialize all elevators at the bottom floor
-            elevators.add(new Elevator(0, floorCount - 1, 0, 0));
+            elevators.add(new Elevator(i, 0, floorCount - 1, 0, 0));
         }
         requests = new ArrayList<List<Request>>(floorCount);
         for (int i = 0; i < elevatorCount; i++) {
@@ -37,9 +42,8 @@ public class SimpleElevatorControlService implements ElevatorControlService {
     @Override
     public synchronized List<Triple<Integer>> status() {
         List<Triple<Integer>> result = new ArrayList<Triple<Integer>>(elevators.size());
-        for(int i = 0; i < elevators.size(); i++) {
-            Elevator temp = elevators.get(i);
-            result.add(new Triple<Integer>(i, temp.currentFloor, temp.destinationFloor));
+        for (Elevator e : elevators) {
+            result.add(new Triple<Integer>(e.getID(), e.getCurrentFloor(), e.getDestinationFloor()));
         }
         return result;
     }
@@ -89,18 +93,57 @@ public class SimpleElevatorControlService implements ElevatorControlService {
                 destinationFloor < 0 || destinationFloor >= requests.size()) {
             throw new IllegalArgumentException("invalid floors");
         }
+        if (pickupFloor == destinationFloor) {
+            throw new IllegalArgumentException("pickup and destination cannot be same");
+        }
         requests.get(pickupFloor).add(new Request(destinationFloor));
     }
 
     @Override
     public synchronized void step() {
+        // move each elevator one step
+        for(Elevator e : elevators) {
+            // save the old floor
+            int prevFloor = e.getCurrentFloor();
 
+            // move the elevator towards its desired floor
+            e.step();
+
+            // first check if any of the elevators passengers are at their
+            // desired floor
+            e.releasePassengers();
+
+            // if we are the destination floor, reverse course to top
+            // or bottom
+            if (e.getCurrentFloor() == e.getDestinationFloor()) {
+                if (e.getCurrentFloor() > prevFloor) {
+                    // at the 'top' => go down
+                    update(e.getID(), e.getMinFloor());
+                } else {
+                    // at the 'bottom' => go up
+                    update(e.getID(), e.getMaxFloor());
+                }
+            }
+
+            // if there are any waiters at this floor, let them in the
+            // elevator if its going in the right direction
+            for (Iterator<Request> iter = requests.get(e.getCurrentFloor()).iterator(); iter.hasNext();) {
+                Request req = iter.next();
+                int reqDest = req.getDesiredFloor();
+
+                if (reqDest >= e.getDestinationFloor() && reqDest < e.getCurrentFloor()) {
+                    iter.remove();
+                    e.serviceRequest(req);
+                }
+            }
+        }
     }
 
     // Encapsulates the state of an elevator
     private static class Elevator {
         private List<Request> passengers;   // people in this elevator
 
+        private int id;
         private int minFloor;
         private int maxFloor;
         private int currentFloor;
@@ -109,6 +152,7 @@ public class SimpleElevatorControlService implements ElevatorControlService {
         /**
          * Constructs a new elevator.
          *
+         * @param id of this elevator.
          * @param minFloor minimum floor this elevator can travel to.
          * @param maxFloor maximum floor this elevator can travel to.
          * @param currentFloor current floor of this elevator.
@@ -116,11 +160,12 @@ public class SimpleElevatorControlService implements ElevatorControlService {
          *
          * @throws java.lang.IllegalArgumentException if minFloor > maxFloor.
          */
-        public Elevator(int minFloor, int maxFloor, int currentFloor, int destinationFloor) {
+        public Elevator(int id, int minFloor, int maxFloor, int currentFloor, int destinationFloor) {
             if (minFloor > maxFloor) {
                 throw new IllegalArgumentException("invalid min/max floors");
             }
 
+            this.id = id;
             this.minFloor = minFloor;
             this.maxFloor = maxFloor;
             this.currentFloor = currentFloor;
@@ -130,6 +175,10 @@ public class SimpleElevatorControlService implements ElevatorControlService {
         }
 
         // getters
+
+        public int getID() {
+            return id;
+        }
 
         public int getDestinationFloor() {
             return destinationFloor;
@@ -172,10 +221,10 @@ public class SimpleElevatorControlService implements ElevatorControlService {
         }
 
         /**
-         * Service some requests.
+         * Service a request.
          */
-        public void serviceRequests(List<Request> requests) {
-            passengers.addAll(requests);
+        public void serviceRequest(Request req) {
+            passengers.add(req);
         }
 
         /**
