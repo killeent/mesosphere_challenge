@@ -10,14 +10,14 @@ and writing this writeup.
 First we define the goals of the system as related to the four interface
 functions that we need to provide.
 
-List((int, int, int)) status(): returns a list of results of the status of each
+* List((int, int, int)) status(): returns a list of results of the status of each
 elevator in the form (id, curr floor, dest floor).
 
 This function is unchanged. In general, because it is merely returning the state
 of the world, this function do not inform development, other than requiring us
 to provide an interface for getting information about the state of the world.
 
-update(int, int): sets the destination floor of the elevator specified by the
+* update(int, int): sets the destination floor of the elevator specified by the
 first parameter (ID) to the floor specified by the second parameter.
 
 This is used by the elevator system to move elevators without requests. We
@@ -25,8 +25,8 @@ remove the ability to change the current floor as this will be handled by step.
 It didn't make sense to just randomly change the current floor (the laws of
 physics will not allow it!).
 
-void pickup(int, int): requests a pickup at the floor specified by the first
-parameter, to travel to the floor at the second parameter
+* void pickup(int, int): requests a pickup at the floor specified by the first
+parameter, to travel to the floor at the second parameter.
 
 We extend the basic interface by allowing the client to specify their desired
 floor when requesting elevator service, as opposed to just desiring to go up or
@@ -44,7 +44,7 @@ pickup request either initiates the movement of an elevator to pick up that
 passenger or registers the request with an elevator already performing work 
 (or as in our actual implementation, elevators are going all the time).
 
-void step(): Time-step our world. To do so, we will simply iterate through each
+* void step(): Time-step our world. To do so, we will simply iterate through each
 of our elevators and have them move one floor towards their intended direction.
 This is the simplest implementation.
 
@@ -59,18 +59,21 @@ requests.
 
 As a result, we decided to have a single lock guarding the state of our world.
 
-During a call to pickup() we: 
+During a call to pickup() we:
+
 1. acquire the global lock 
 2. make our request 
 3. release the lock.
 
-During a call to update() we: 
+During a call to update() we:
+
 1. acquire the global lock 
 2. update the
 destination floor of the specified elevator
 3. release the lock
 
 During a call to step() we: 
+
 1. acquire the global lock 
 2. iterate through allelevators, performing their actions one by one 
 3. release the lock
@@ -126,24 +129,24 @@ reasonable amount of time, I decided that the added complexity was too great.
 The main class we design is the ElevatorControlSystem class, which implements
 the interface we designed above, and contains the state of our world.
 
-state:
+#### state:
 
 * lock guarding the state of the (implicity this) 
 * an array of lists of Requests, one for each floor of the building 
 * an array of Elevators
 
-public functions:
+#### public functions:
 
 * the four API functions described above 
 * a constructor, which takes in a user-specified floor count and elevator count 
 * getIDs(): returns the set of elevator IDs 
 * floorRange(int elevatorID): returns the range of floors for an elevator
 
-private functions:
+#### private functions:
 
 * isValidElevatorID(int elevatorID): check the validity of an elevatorID
 
-discussion:
+#### discussion:
 
 The API is discussed above, and the constructor is fairly self-explanatory.
 Instead, let's consider the class design.
@@ -159,16 +162,16 @@ information.
 
 The next class we consider is the Request class.
 
-state:
+#### state:
 
 * desired floor
 
-public functions:
+#### public functions:
 
 * a constructor, which takes in the specified desired floor 
 * getDesiredFloor(): returns the floor desired by this request
 
-discussion:
+#### discussion:
 
 The request class is fairly simple, but is designed for modularity and
 extensibility. We can think of the request as a person so we could imagine
@@ -178,14 +181,14 @@ embody this greater priority).
 
 The last class we consider is the Elevator class.
 
-state:
+#### state:
 
 * id 
 * current, destination floor 
 * min, max floor destination floor 
 * a list of passengers (Requests)
 
-public functions:
+#### public functions:
 
 * a constructor, which takes in a specified initial floor and min, max floors 
 * a step() function, to be called whenever a global step occurs. This simply moves
@@ -196,7 +199,7 @@ are at their requestedfloor
 * a setDestinationFloor() function, which allows the ECS to set the destination
 floor. 
 
-discussion:
+#### discussion:
 
 The challenge with the Elevator is that it is inherently coupled to the
 ElevatorControlSystem, so we want to design it in a way so that the
@@ -214,7 +217,7 @@ elevator, without a request, and to decouple the SCAN functionality as best we
 can. It will allow us to set up a different scheduling algorithm without having
 to modify the internal state of the Elevator.
 
-class organization:
+#### class organization:
 
 For now, we chose to implement Request and Elevator as inner classes within the
 ElevatorControlSystem because they are fairly specific to the ECS
@@ -239,7 +242,7 @@ I think it went okay -> but I would have liked to put more thought into the
 scheduling algorithm. The next thing I would have done with more time is to
 only make elevators move if either:
 
-a) They have people inside them
-b) There is someone waiting somewhere
+1. They have people inside them
+2. There is someone waiting somewhere
 
 This is a simple fix that could yield a lot of efficiency gains. 
