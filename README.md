@@ -5,6 +5,9 @@ and writing this writeup.
 
 ### Build Information
 
+* `gradle build` to build
+* `gradle run` to run main
+
 ### Top-level Interface
 
 First we define the goals of the system as related to the four interface
