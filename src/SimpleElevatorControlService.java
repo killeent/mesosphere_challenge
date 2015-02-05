@@ -81,8 +81,8 @@ public class SimpleElevatorControlService implements ElevatorControlService {
     @Override
     public synchronized Set<Integer> idSet() {
         Set<Integer> result = new HashSet<Integer>();
-        for (int i = 0; i < elevators.size(); i++) {
-            result.add(i);
+        for (Elevator e : elevators) {
+            result.add(e.getID());
         }
         return result;
     }
