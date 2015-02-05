@@ -1,4 +1,4 @@
-package main;
+package main.java;
 
 /**
  * Quick and dirty pair. Not meant to be good in any sort of way.
