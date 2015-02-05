@@ -1,6 +1,6 @@
 ## Elevator Challenge
 
-Challenge Performed from 1pm-5pm PST, on 2/4/15. This includes design, coding
+Challenge Performed from 1pm-4:30pm PST, on 2/4/15. This includes design, coding
 and writing this writeup. 
 
 ### Build Information
@@ -234,3 +234,12 @@ In general, I stayed fairly true to the implementation specified above. Everythi
 I changed was mostly to make the interfaces make more sense. 
 
 ### Final Thoughts
+
+I think it went okay -> but I would have liked to put more thought into the
+scheduling algorithm. The next thing I would have done with more time is to
+only make elevators move if either:
+
+a) They have people inside them
+b) There is someone waiting somewhere
+
+This is a simple fix that could yield a lot of efficiency gains. 

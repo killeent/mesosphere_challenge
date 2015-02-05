@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a6ef2339-56aa-477c-ac7e-161aa749a51b" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/SimpleElevatorControlService.java" afterPath="$PROJECT_DIR$/src/SimpleElevatorControlService.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="mesosphere_challenge.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -30,7 +30,7 @@
       <file leaf-file-name="SimpleElevatorControlService.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/SimpleElevatorControlService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.9266055" vertical-offset="0" max-vertical-offset="3825">
+            <state vertical-scroll-proportion="-2.9220183" vertical-offset="3171" max-vertical-offset="3825">
               <caret line="84" column="34" selection-start-line="84" selection-start-column="34" selection-end-line="84" selection-end-column="34" />
               <folding>
                 <element signature="e#1577#1594#0" expanded="true" />
@@ -448,7 +448,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/SimpleElevatorControlService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.9266055" vertical-offset="0" max-vertical-offset="3825">
+        <state vertical-scroll-proportion="-2.9220183" vertical-offset="3171" max-vertical-offset="3825">
           <caret line="84" column="34" selection-start-line="84" selection-start-column="34" selection-end-line="84" selection-end-column="34" />
           <folding>
             <element signature="e#1577#1594#0" expanded="true" />
