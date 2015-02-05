@@ -1,3 +1,5 @@
+package main;
+
 /**
  * CLI Interface to the Elevator Project, if desired.
  *
@@ -5,6 +7,7 @@
  */
 public class Main {
     public static void main(String[] args) {
-
+        // ElevatorControlService es = new SimpleElevatorControlService(1, 1);
+        System.out.println("hello world!");
     }
 }

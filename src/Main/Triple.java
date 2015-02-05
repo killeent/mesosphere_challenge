@@ -1,3 +1,5 @@
+package main;
+
 /**
  * Quick and dirty triple. Not meant to be good in any sort of way.
  *
